@@ -1,0 +1,497 @@
+import { useState, useEffect } from 'react';
+import {
+  Crosshair, Moon, Sun, Globe, ArrowRight, Link as LinkIcon,
+  MapPin, Server, ShieldAlert, BarChart2, Activity, Clock,
+  CheckCircle2, FileText, ChevronRight, Eye, Search, Download,
+  Trash2, ShieldCheck, AlertTriangle, Cpu, ExternalLink
+} from 'lucide-react';
+
+const INITIAL_SCANS = [
+  {
+    id: 1,
+    ip: '8.8.8.8',
+    country: 'United States',
+    flag: '🇺🇸',
+    region: 'California',
+    city: 'Mountain View',
+    timezone: 'America/Los_Angeles',
+    isp: 'Google LLC',
+    org: 'Google Public DNS',
+    asn: 'AS15169',
+    network: '8.8.8.0/24',
+    type: 'Corporate',
+    threatScore: 72,
+    status: 'HIGH',
+    abuseReports: 12,
+    malicious: 'No',
+    categories: 'None',
+    lastReported: '2 months ago',
+    reputation: 'Clean',
+    timestamp: 'Oct 4, 2026 11:30 AM'
+  },
+  {
+    id: 2,
+    ip: '1.1.1.1',
+    country: 'United States',
+    flag: '🇺🇸',
+    region: 'California',
+    city: 'San Francisco',
+    timezone: 'America/Los_Angeles',
+    isp: 'Cloudflare, Inc.',
+    org: 'APNIC Research',
+    asn: 'AS13335',
+    network: '1.1.1.0/24',
+    type: 'Hosting',
+    threatScore: 15,
+    status: 'LOW',
+    abuseReports: 2,
+    malicious: 'No',
+    categories: 'None',
+    lastReported: '5 months ago',
+    reputation: 'Clean',
+    timestamp: 'Oct 3, 2026 09:12 PM'
+  }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('Home');
+  const [isDark, setIsDark] = useState(true);
+  const [scans, setScans] = useState(INITIAL_SCANS);
+  const [activeScan, setActiveScan] = useState(INITIAL_SCANS[0]);
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  const addScan = (newScan) => {
+    setScans(prev => [newScan, ...prev]);
+    setActiveScan(newScan);
+  };
+
+  return (
+    <div className={isDark ? "dark" : ""}>
+      <div className={`min-h-screen font-sans flex flex-col relative overflow-hidden transition-colors duration-300 ${
+        isDark ? "bg-[#090306] text-gray-300" : "bg-[#FFF5F8] text-gray-800"
+      }`}>
+        
+        <div className={`absolute top-0 right-0 w-full h-[700px] pointer-events-none ${
+          isDark 
+            ? "bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-900/25 via-[#090306] to-[#090306]" 
+            : "bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-200/50 via-[#FFF5F8] to-[#FFF5F8]"
+        }`}></div>
+        
+        <header className={`h-[72px] flex items-center justify-between px-6 lg:px-12 backdrop-blur-md sticky top-0 z-50 border-b transition-colors duration-300 ${
+          isDark ? "bg-[#090306]/90 border-pink-500/10" : "bg-white/90 border-pink-200"
+        }`}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('Home')}>
+            <Crosshair size={28} className="text-pink-500" />
+            <span className={`text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-gray-900"}`}>
+              ReconX
+            </span>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-8 h-full">
+            {['Home', 'History', 'Reports', 'About'].map((tab) => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`h-full flex items-center text-sm transition-colors border-b-2 px-1 mt-[2px] ${
+                  activeTab === tab 
+                    ? 'text-pink-500 border-pink-500 font-bold' 
+                    : isDark 
+                      ? 'text-gray-400 border-transparent hover:text-white font-medium' 
+                      : 'text-gray-500 border-transparent hover:text-gray-900 font-medium'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center">
+            <div className={`flex items-center rounded-full p-1 border transition-colors ${
+              isDark ? "bg-[#15070B] border-pink-500/20" : "bg-pink-100/80 border-pink-300"
+            }`}>
+              <button 
+                type="button"
+                onClick={() => setIsDark(false)}
+                className={`p-1.5 rounded-full transition-all ${
+                  !isDark 
+                    ? 'bg-pink-500 text-white shadow-[0_0_12px_rgba(236,72,153,0.6)]' 
+                    : 'text-gray-400 hover:text-pink-400'
+                }`}
+              >
+                <Sun size={16} />
+              </button>
+              <button 
+                type="button"
+                onClick={() => setIsDark(true)}
+                className={`p-1.5 rounded-full transition-all ${
+                  isDark 
+                    ? 'bg-pink-500 text-white shadow-[0_0_12px_rgba(236,72,153,0.6)]' 
+                    : 'text-gray-500 hover:text-pink-500'
+                }`}
+              >
+                <Moon size={16} />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto px-4 py-8 md:px-8 lg:px-12 max-w-[1400px] mx-auto w-full z-10">
+          {activeTab === 'Home' && (
+            <HomeContent 
+              isDark={isDark} 
+              activeScan={activeScan} 
+              setActiveScan={setActiveScan}
+              addScan={addScan}
+            />
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function HomeContent({ isDark, activeScan, addScan }) {
+  const [ipInput, setIpInput] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showResults, setShowResults] = useState(true);
+
+  const performAnalysis = async (targetIp, isSelf = false) => {
+    setIsAnalyzing(true);
+    setShowResults(false);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const generatedScore = isSelf ? 8 : Math.floor(Math.random() * 85) + 10;
+    let status = 'LOW';
+    if (generatedScore >= 70) status = 'HIGH';
+    else if (generatedScore >= 85) status = 'CRITICAL';
+
+    const newScanEntry = {
+      id: Date.now(),
+      ip: targetIp,
+      country: isSelf ? 'India' : 'United States',
+      flag: isSelf ? '🇮🇳' : '🇺🇸',
+      region: isSelf ? 'Rajasthan' : 'California',
+      city: isSelf ? 'Jaipur' : 'Mountain View',
+      timezone: isSelf ? 'Asia/Kolkata (IST)' : 'America/Los_Angeles',
+      isp: isSelf ? 'Jio Platforms Limited' : 'Google LLC',
+      org: isSelf ? 'Jio Platforms Limited' : 'Google Public DNS',
+      asn: isSelf ? 'AS55836' : 'AS15169',
+      network: isSelf ? '49.36.80.0/20' : `${targetIp.split('.').slice(0, 3).join('.')}.0/24`,
+      type: isSelf ? 'ISP / Broadband' : 'Corporate Network',
+      threatScore: generatedScore,
+      status: status,
+      abuseReports: generatedScore > 50 ? 12 : 0,
+      malicious: generatedScore > 60 ? 'Yes' : 'No',
+      categories: generatedScore > 60 ? 'Suspicious Traffic' : 'None',
+      lastReported: generatedScore > 50 ? '3 days ago' : 'Never',
+      reputation: generatedScore > 60 ? 'Suspicious' : 'Clean',
+      timestamp: 'Just now'
+    };
+
+    addScan(newScanEntry);
+    setIsAnalyzing(false);
+    setShowResults(true);
+  };
+
+  const handleAnalyzeCustomIp = (e) => {
+    e.preventDefault();
+    const query = ipInput.trim() || '8.8.8.8';
+    performAnalysis(query, false);
+  };
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="mb-10 mt-2">
+        <h1 className="text-4xl md:text-5xl lg:text-[54px] font-bold text-pink-500 mb-5 tracking-tight leading-tight">
+          Analyze Any Public IP
+        </h1>
+        <p className={`max-w-xl text-sm md:text-base leading-relaxed ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+          ReconX provides real-time intelligence, geolocation, network information and threat analysis for any public IP address.
+        </p>
+      </div>
+
+      {!isAnalyzing && (
+        <form onSubmit={handleAnalyzeCustomIp} className={`border rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8 transition-all ${
+          isDark 
+            ? "bg-[#0D0508] border-white/10 hover:border-white/20" 
+            : "bg-white border-pink-200 hover:border-pink-400 shadow-sm"
+        }`}>
+          <div className="flex items-start gap-4 flex-1 w-full">
+            <div className={`w-12 h-12 rounded-full border flex items-center justify-center mt-1 text-pink-500 ${
+              isDark ? "bg-[#1A0B13] border-white/5" : "bg-pink-50 border-pink-200"
+            }`}>
+              <LinkIcon size={24} strokeWidth={1.5} />
+            </div>
+            <div className="w-full">
+              <h3 className={`font-bold text-lg mb-1 ${isDark ? "text-white" : "text-gray-900"}`}>Enter IP Address</h3>
+              <input 
+                type="text" 
+                value={ipInput}
+                onChange={(e) => setIpInput(e.target.value)}
+                placeholder="e.g. 8.8.8.8, 1.1.1.1" 
+                className={`w-full max-w-lg border rounded-lg py-2.5 px-4 text-sm focus:outline-none mt-2 transition-all ${
+                  isDark 
+                    ? "bg-[#1A0B13] border-white/10 text-white placeholder:text-gray-600 focus:border-pink-500" 
+                    : "bg-pink-50/50 border-pink-200 text-gray-900 placeholder:text-gray-400 focus:border-pink-500"
+                }`}
+              />
+            </div>
+          </div>
+          <button 
+            type="submit"
+            className="w-full sm:w-auto bg-pink-500 hover:bg-pink-400 text-white font-semibold py-3 px-8 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(236,72,153,0.3)] mt-auto active:scale-95"
+          >
+            Analyze IP <ArrowRight size={18} />
+          </button>
+        </form>
+      )}
+
+      {isAnalyzing && (
+        <div className={`border rounded-2xl p-12 flex flex-col items-center justify-center min-h-[300px] mb-8 shadow-sm animate-in fade-in zoom-in-95 duration-300 ${
+          isDark ? "bg-[#120509] border-pink-500/30" : "bg-white border-pink-200"
+        }`}>
+          <div className="w-16 h-16 rounded-full border-4 border-pink-100 border-t-pink-500 animate-spin mb-6"></div>
+          <h2 className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+            Analyzing Network Data...
+          </h2>
+        </div>
+      )}
+
+      {showResults && activeScan && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 mb-10">
+          <div className={`flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b pb-4 gap-4 ${
+            isDark ? "border-white/10" : "border-pink-200"
+          }`}>
+            <div className={`flex items-center gap-3 font-bold text-xl ${isDark ? "text-white" : "text-gray-900"}`}>
+              <BarChart2 size={26} className="text-pink-500" />
+              Analysis Results
+            </div>
+            <div className={`text-sm flex items-center gap-4 font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+              <span>Analyzed Target: <strong className={`text-lg ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.ip}</strong></span>
+            </div>
+          </div>
+
+          {/* TOP ROW: 3 Columns for compact data */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            
+            {/* 1. Threat Score */}
+            <div className={`border rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm ${
+              isDark ? "bg-[#0D0508] border-white/5" : "bg-white border-pink-200"
+            }`}>
+              <div className={`flex items-center gap-2 text-sm font-bold w-full justify-start mb-6 uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                <Activity size={18} className="text-pink-500" /> Threat Score
+              </div>
+              <div className="relative w-36 h-36 flex items-center justify-center mb-6">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="transparent" stroke={isDark ? "#1A0B13" : "#FCE7F3"} strokeWidth="10" />
+                  <circle 
+                    cx="50" cy="50" r="42" fill="transparent" stroke="#EC4899" strokeWidth="10" 
+                    strokeDasharray="263.89" strokeDashoffset={263.89 - (263.89 * activeScan.threatScore) / 100} 
+                    strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]" 
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center">
+                  <span className={`text-5xl font-black leading-none ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.threatScore}</span>
+                  <span className={`text-xs mt-1 font-bold ${isDark ? "text-gray-500" : "text-gray-400"}`}>/ 100</span>
+                </div>
+              </div>
+              <span className={`px-6 py-1.5 rounded-md text-xs font-bold tracking-widest text-white shadow-[0_0_10px_rgba(236,72,153,0.5)] ${
+                activeScan.status === 'CRITICAL' ? 'bg-red-600' : activeScan.status === 'HIGH' ? 'bg-pink-500' : 'bg-emerald-600'
+              }`}>
+                {activeScan.status} RISK
+              </span>
+            </div>
+
+            {/* 2. IP Overview */}
+            <div className={`border rounded-2xl p-6 shadow-sm ${
+              isDark ? "bg-[#0D0508] border-white/5" : "bg-white border-pink-200"
+            }`}>
+              <div className={`flex items-center gap-2 text-sm font-bold mb-6 uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                <Server size={18} className="text-pink-500" /> IP Overview
+              </div>
+              <div className="space-y-5 text-sm">
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>IP Address</span>
+                  <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.ip}</span>
+                </div>
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Hostname</span>
+                  <span className={`font-mono text-xs ${isDark ? "text-gray-300" : "text-gray-700"}`}>dns.google</span>
+                </div>
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>ASN</span>
+                  <span className={`font-mono ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.asn}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Usage Type</span>
+                  <span className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.type}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Abuse Information */}
+            <div className={`border rounded-2xl p-6 shadow-sm ${
+              isDark ? "bg-[#0D0508] border-white/5" : "bg-white border-pink-200"
+            }`}>
+              <div className={`flex items-center gap-2 text-sm font-bold mb-6 uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                <ShieldAlert size={18} className="text-pink-500" /> Abuse Data
+              </div>
+              <div className="space-y-5 text-sm">
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Total Reports</span>
+                  <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.abuseReports}</span>
+                </div>
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Malicious</span>
+                  <span className={`font-bold ${activeScan.malicious === 'Yes' ? 'text-red-500' : isDark ? 'text-white' : 'text-gray-900'}`}>{activeScan.malicious}</span>
+                </div>
+                <div className={`flex justify-between border-b pb-3 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Last Reported</span>
+                  <span className={`font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>{activeScan.lastReported}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Reputation</span>
+                  <span className={`px-3 py-1 rounded text-xs font-bold ${
+                    activeScan.reputation === 'Clean' ? 'bg-[#064E3B] text-[#34D399]' : 'bg-red-900/60 text-red-300'
+                  }`}>
+                    {activeScan.reputation}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM ROW: 2 Columns for spacious layout (Location & Network) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* 4. Spacious Location Details Card (Matching User Request) */}
+            <div className={`border rounded-2xl p-8 shadow-sm flex flex-col ${
+              isDark ? "bg-[#0D0508] border-white/5" : "bg-white border-pink-200"
+            }`}>
+              <div className="flex justify-between items-center mb-6">
+                <div className={`flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-gray-900"}`}>
+                  <MapPin size={20} className="text-pink-500" /> Location Details
+                </div>
+                <a href="#" className="text-pink-500 hover:text-pink-400 text-sm flex items-center gap-1.5 font-medium transition-colors">
+                  View on Map <ExternalLink size={16} />
+                </a>
+              </div>
+              
+              {/* Fake Leaflet Map UI */}
+              <div className={`relative w-full h-[220px] rounded-xl mb-8 overflow-hidden border ${
+                isDark ? "border-white/10" : "border-pink-200"
+              }`}>
+                {/* Map Background */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center" 
+                  style={{
+                    backgroundImage: isDark 
+                      ? "url('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/12/655/1583.png')"
+                      : "url('https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/12/655/1583.png')"
+                  }}
+                ></div>
+                
+                {/* Zoom Controls */}
+                <div className="absolute top-3 left-3 flex flex-col shadow-lg rounded-[4px] overflow-hidden border border-gray-300/50">
+                  <button className="bg-white text-black w-8 h-8 flex items-center justify-center font-bold text-lg hover:bg-gray-100 border-b border-gray-200">+</button>
+                  <button className="bg-white text-black w-8 h-8 flex items-center justify-center font-bold text-xl hover:bg-gray-100">−</button>
+                </div>
+
+                {/* Map Marker */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[100%] drop-shadow-xl flex flex-col items-center">
+                  <div className="relative">
+                    <MapPin size={46} className="text-[#2563EB]" fill="#3B82F6" stroke="white" strokeWidth={1.5} />
+                    <div className="absolute top-[14px] left-[15px] w-4 h-4 bg-white rounded-full"></div>
+                  </div>
+                </div>
+
+                {/* Attribution */}
+                <div className="absolute bottom-0 right-0 bg-white/90 px-2 py-0.5 text-[11px] text-gray-700 flex items-center gap-1.5 rounded-tl-md font-medium">
+                  <div className="flex gap-0.5">
+                    <div className="w-2.5 h-2.5 bg-[#FFD700]"></div>
+                    <div className="w-2.5 h-2.5 bg-[#2563EB]"></div>
+                  </div>
+                  Leaflet | © OpenStreetMap
+                </div>
+              </div>
+
+              {/* Spaced Out Details */}
+              <div className="space-y-5 text-[15px] flex-1 flex flex-col justify-end">
+                <div className={`flex justify-between items-center border-b pb-4 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Country:</span>
+                  <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                    {activeScan.country === 'United States' ? 'US' : activeScan.country}
+                  </span>
+                </div>
+                <div className={`flex justify-between items-center border-b pb-4 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Region:</span>
+                  <span className={`font-mono text-sm tracking-wide ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                    {activeScan.region}
+                  </span>
+                </div>
+                <div className={`flex justify-between items-center border-b pb-4 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>City:</span>
+                  <span className={`font-mono text-sm tracking-wide ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                    {activeScan.city}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Timezone:</span>
+                  <span className={`font-mono text-sm tracking-wide ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                    {activeScan.timezone}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Spacious Network Information Card */}
+            <div className={`border rounded-2xl p-8 shadow-sm flex flex-col ${
+              isDark ? "bg-[#0D0508] border-white/5" : "bg-white border-pink-200"
+            }`}>
+              <div className="flex justify-between items-center mb-10">
+                <div className={`flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-gray-900"}`}>
+                  <Globe size={20} className="text-pink-500" /> Network Routing
+                </div>
+              </div>
+
+              <div className="space-y-6 text-[15px] flex-1">
+                <div className={`flex justify-between items-center border-b pb-5 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Internet Service Provider:</span>
+                  <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{activeScan.isp}</span>
+                </div>
+                <div className={`flex justify-between items-center border-b pb-5 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Organization Name:</span>
+                  <span className={`font-medium text-right max-w-[200px] leading-snug ${isDark ? "text-gray-200" : "text-gray-800"}`}>{activeScan.org}</span>
+                </div>
+                <div className={`flex justify-between items-center border-b pb-5 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>CIDR Network Block:</span>
+                  <span className={`font-mono text-sm tracking-wide text-pink-500`}>{activeScan.network}</span>
+                </div>
+                <div className={`flex justify-between items-center border-b pb-5 ${isDark ? "border-white/5" : "border-pink-50"}`}>
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Connection Type:</span>
+                  <span className={`font-medium ${isDark ? "text-gray-200" : "text-gray-800"}`}>{activeScan.type}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className={isDark ? "text-gray-400" : "text-gray-500"}>Autonomous System:</span>
+                  <span className={`px-3 py-1 rounded bg-pink-500/10 text-pink-500 font-mono text-sm font-bold border border-pink-500/20`}>
+                    {activeScan.asn}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
